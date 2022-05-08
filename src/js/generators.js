@@ -12,20 +12,48 @@ export function* characterGenerator(allowedTypes, maxLevel) {
   yield new allowedTypes[rand](maxLevel);
 }
 
-export function generateTeam(allowedTypes, maxLevel, characterCount) {
+/*export function generateTeam(allowedTypes, maxLevel, characterCount) {
   // TODO: write logic here
   const team = [];
   for (let i = 0; i < characterCount; i++) {
     for (let character of characterGenerator(allowedTypes, maxLevel)) {
-      team.push(character);
+      let position = getRandomIntInclusive(0, 1) + 8 * getRandomIntInclusive(0, 7);
+      team.push({ position: position, character: character });
     }
   }
+  return team;
+}*/
+
+
+export function generateTeam(allowedTypes, maxLevel, characterCount) {
+  // TODO: write logic here
+  const arrNumb = [];
+  const team = [];
+  let n, p;
+  for (let i = 0; i < characterCount; i += 1) {
+    do {
+      n = getRandomIntInclusive(0, 1) + 8 * getRandomIntInclusive(0, 7);
+      p = arrNumb.includes(n);
+      if (!p) {
+        arrNumb.push(n);
+      }
+    }
+    while (p);
+  }
+
+  arrNumb.forEach(item => {
+    for (let character of characterGenerator(allowedTypes, maxLevel)) {
+      team.push({ position: item, character: character });
+    }
+  });
+
+  
   return team;
 }
 
 //Генератор случайных целых чисел
-function getRandomIntInclusive(min, max) {
+export function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
