@@ -12,19 +12,6 @@ export function* characterGenerator(allowedTypes, maxLevel) {
   yield new allowedTypes[rand](maxLevel);
 }
 
-/*export function generateTeam(allowedTypes, maxLevel, characterCount) {
-  // TODO: write logic here
-  const team = [];
-  for (let i = 0; i < characterCount; i++) {
-    for (let character of characterGenerator(allowedTypes, maxLevel)) {
-      let position = getRandomIntInclusive(0, 1) + 8 * getRandomIntInclusive(0, 7);
-      team.push({ position: position, character: character });
-    }
-  }
-  return team;
-}*/
-
-
 export function generateTeam(allowedTypes, maxLevel, characterCount) {
   // TODO: write logic here
   const arrNumb = [];
@@ -40,14 +27,11 @@ export function generateTeam(allowedTypes, maxLevel, characterCount) {
     }
     while (p);
   }
-
   arrNumb.forEach(item => {
     for (let character of characterGenerator(allowedTypes, maxLevel)) {
       team.push({ position: item, character: character });
     }
-  });
-
-  
+  });  
   return team;
 }
 

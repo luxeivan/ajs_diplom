@@ -24,6 +24,14 @@ export default class GameController {
       item.position +=6;
       return item;
     })));
+
+    //Добавление действия на кнопку NewGame
+    if(!this.gamePlay.newGameListeners.length){
+      this.gamePlay.addNewGameListener(()=>{
+        gameCtrl.init();
+      });
+    }
+    
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
