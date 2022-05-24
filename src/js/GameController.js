@@ -2,6 +2,7 @@ import themes from "./themes";
 import GameState from "./GameState";
 import { generateTeam, getRandomIntInclusive } from "./generators";
 import { Swordsman, Bowman, Magician, Daemon, Undead, Vampire } from './Character';
+import GamePlay from "./GamePlay";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -25,6 +26,20 @@ export default class GameController {
       item.position += 6;
       return item;
     })));
+
+    //Добавление сетки координат
+    let grid = [];
+    let valueGrid = 0;
+    let gridY = [];
+    for (let y = 0; y < 8; y += 1) {
+      for (let x = 0; x < 8; x += 1) {
+        gridY.push(valueGrid);
+        valueGrid += 1;
+      }
+      grid.push(gridY);
+      gridY = [];
+    }
+    this.grid = grid;
 
     //Добавление действия на кнопку NewGame
     if (!this.gamePlay.newGameListeners.length) {
@@ -65,11 +80,53 @@ export default class GameController {
     //Добавление действия Клик мышью по ячейке поля
     if (!this.gamePlay.cellClickListeners.length) {
       this.gamePlay.addCellClickListener(itemCell => {
-        // console.log("Клик: " + itemCell);
+        //Совершение хода проверка если выделен персонаж пользователя
+        if (this.gameState.playerCharacters.findIndex(item => item.selected === true) != -1) {
+          const oldPositionIndex = this.gameState.playerCharacters.findIndex(item => item.selected === true);
+
+          //Снятие выделения с ячейки с персонажем
+          this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
+          this.gameState.playerCharacters[oldPositionIndex].selected = false;
+
+          //Проверка Если попытка пойти в ту же ячейку где стоит персонаж
+          if (this.gameState.playerCharacters[oldPositionIndex].position != itemCell) {
+            this.gameState.playerCharacters[oldPositionIndex].position = itemCell;
+          } else {
+            this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
+            this.gameState.playerCharacters[oldPositionIndex].selected = false;
+          }
+
+          // Перересовка игрового поля
+          this.gamePlay.redrawPositions(this.gameState.playerCharacters.concat(this.gameState.compCharacters));
+
+          // Если не выделен персонаж то проверка если ячейка с персонажем то выделять
+        } else {
+          const select = (itemCharacter) => {
+            if (itemCharacter.selected) {
+              this.gamePlay.deselectCell(itemCharacter.position);
+            }
+            if (itemCharacter.position === itemCell) {
+              this.gamePlay.selectCell(itemCharacter.position);
+              itemCharacter.selected = true;
+            }
+          }
+          this.gameState.playerCharacters.forEach(itemCharacter => select(itemCharacter));
+        }
+
       });
     }
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
+  }
+
+  cordinate(cellNumber) {
+    let valueGrid = 0;
+    for (let y = 0; y < 8; y += 1) {
+      for (let x = 0; x < 8; x += 1) {
+        if (valueGrid === cellNumber) return { x, y };
+        valueGrid += 1;
+      }
+    }
   }
 
   onCellClick(index) {
