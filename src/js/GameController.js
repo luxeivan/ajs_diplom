@@ -50,70 +50,17 @@ export default class GameController {
 
     //Добавление действия Вход указателя мыши в ячейку поля
     if (!this.gamePlay.cellEnterListeners.length) {
-      this.gamePlay.addCellEnterListener(itemCell => {
-
-        const show = (itemCharacter) => {
-          if (itemCharacter.position === itemCell) {
-            this.gamePlay.showCellTooltip(
-              String.fromCodePoint(0x1F396) + ' ' + itemCharacter.character.level +
-              ' ' + String.fromCodePoint(0x2694) + ' ' + itemCharacter.character.attack +
-              ' ' + String.fromCodePoint(0x1F6E1) + ' ' + itemCharacter.character.defence +
-              ' ' + String.fromCodePoint(0x2764) + ' ' + itemCharacter.character.health,
-              itemCell);
-          }
-        }
-
-        this.gameState.compCharacters.forEach(itemCharacter => show(itemCharacter));
-        this.gameState.playerCharacters.forEach(itemCharacter => show(itemCharacter));
-
-        //console.log("Вход: " + itemCell);
-      });
+      this.gamePlay.addCellEnterListener(itemCell => this.onCellEnter(itemCell));
     }
 
     //Добавление действия Выход указателя мыши из ячейки поля
     if (!this.gamePlay.cellLeaveListeners.length) {
-      this.gamePlay.addCellLeaveListener(itemCell => {
-        //console.log("Выход: " + itemCell);
-      });
+      this.gamePlay.addCellLeaveListener(itemCell => this.onCellLeave(itemCell));
     }
 
     //Добавление действия Клик мышью по ячейке поля
     if (!this.gamePlay.cellClickListeners.length) {
-      this.gamePlay.addCellClickListener(itemCell => {
-        //Совершение хода проверка если выделен персонаж пользователя
-        if (this.gameState.playerCharacters.findIndex(item => item.selected === true) != -1) {
-          const oldPositionIndex = this.gameState.playerCharacters.findIndex(item => item.selected === true);
-
-          //Снятие выделения с ячейки с персонажем
-          this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
-          this.gameState.playerCharacters[oldPositionIndex].selected = false;
-
-          //Проверка Если попытка пойти в ту же ячейку где стоит персонаж
-          if (this.gameState.playerCharacters[oldPositionIndex].position != itemCell) {
-            this.gameState.playerCharacters[oldPositionIndex].position = itemCell;
-          } else {
-            this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
-            this.gameState.playerCharacters[oldPositionIndex].selected = false;
-          }
-
-          // Перересовка игрового поля
-          this.gamePlay.redrawPositions(this.gameState.playerCharacters.concat(this.gameState.compCharacters));
-
-          // Если не выделен персонаж то проверка если ячейка с персонажем то выделять
-        } else {
-          const select = (itemCharacter) => {
-            if (itemCharacter.selected) {
-              this.gamePlay.deselectCell(itemCharacter.position);
-            }
-            if (itemCharacter.position === itemCell) {
-              this.gamePlay.selectCell(itemCharacter.position);
-              itemCharacter.selected = true;
-            }
-          }
-          this.gameState.playerCharacters.forEach(itemCharacter => select(itemCharacter));
-        }
-
-      });
+      this.gamePlay.addCellClickListener(itemCell => this.onCellClick(itemCell));
     }
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
@@ -129,15 +76,65 @@ export default class GameController {
     }
   }
 
-  onCellClick(index) {
+  onCellClick(itemCell) {
+      //Совершение хода проверка если выделен персонаж пользователя
+      if (this.gameState.playerCharacters.findIndex(item => item.selected === true) != -1) {
+        const oldPositionIndex = this.gameState.playerCharacters.findIndex(item => item.selected === true);
+
+        //Снятие выделения с ячейки с персонажем
+        this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
+        this.gameState.playerCharacters[oldPositionIndex].selected = false;
+
+        //Проверка Если попытка пойти в ту же ячейку где стоит персонаж
+        if (this.gameState.playerCharacters[oldPositionIndex].position != itemCell) {
+          this.gameState.playerCharacters[oldPositionIndex].position = itemCell;
+        } else {
+          this.gamePlay.deselectCell(this.gameState.playerCharacters[oldPositionIndex].position);
+          this.gameState.playerCharacters[oldPositionIndex].selected = false;
+        }
+
+        // Перересовка игрового поля
+        this.gamePlay.redrawPositions(this.gameState.playerCharacters.concat(this.gameState.compCharacters));
+
+        // Если не выделен персонаж то проверка если ячейка с персонажем то выделять
+      } else {
+        const select = (itemCharacter) => {
+          if (itemCharacter.selected) {
+            this.gamePlay.deselectCell(itemCharacter.position);
+          }
+          if (itemCharacter.position === itemCell) {
+            this.gamePlay.selectCell(itemCharacter.position);
+            itemCharacter.selected = true;
+          }
+        }
+        this.gameState.playerCharacters.forEach(itemCharacter => select(itemCharacter));
+      }
+
+    
     // TODO: react to click
   }
 
-  onCellEnter(index) {
+  onCellEnter(itemCell) {
+    const show = (itemCharacter) => {
+      if (itemCharacter.position === itemCell) {
+        this.gamePlay.showCellTooltip(
+          String.fromCodePoint(0x1F396) + ' ' + itemCharacter.character.level +
+          ' ' + String.fromCodePoint(0x2694) + ' ' + itemCharacter.character.attack +
+          ' ' + String.fromCodePoint(0x1F6E1) + ' ' + itemCharacter.character.defence +
+          ' ' + String.fromCodePoint(0x2764) + ' ' + itemCharacter.character.health,
+          itemCell);
+      }
+    }
+
+    this.gameState.compCharacters.forEach(itemCharacter => show(itemCharacter));
+    this.gameState.playerCharacters.forEach(itemCharacter => show(itemCharacter));
+
+    //console.log("Вход: " + itemCell);
     // TODO: react to mouse enter
   }
 
-  onCellLeave(index) {
+  onCellLeave(itemCell) {
+    //console.log("Выход: " + itemCell);
     // TODO: react to mouse leave
   }
 }
